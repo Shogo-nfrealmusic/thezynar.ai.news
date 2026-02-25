@@ -97,26 +97,32 @@ export interface HeroSplineProps {
   className?: string;
 }
 
+/** 再生ボタン用のアイコン（Spline 部分の再レンダリング） */
+function ReplayIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z" />
+    </svg>
+  );
+}
+
 export function HeroSpline({
   scene = SPLINE_SCENE_URL,
   onCategorySelect,
   className,
 }: HeroSplineProps) {
   const [shouldLoad, setShouldLoad] = useState(false);
+  const [splineRemountKey, setSplineRemountKey] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleSplineLoad = (spline: unknown) => {
-    const app = spline as { controls?: Record<string, unknown> };
-    if (!app?.controls) return;
-    const c = app.controls as Record<string, unknown>;
-    // オービット・パン・ズームを有効化（Three.js OrbitControls や Spline の controls 用）
-    const enableKeys = [
-      "enableOrbit", "enablePan", "enableZoom", "enabled",
-      "enableRotate", "enableDamping",
-    ];
-    enableKeys.forEach((key) => {
-      if (key in c) c[key] = true;
-    });
+  const handleReplay = () => {
+    setSplineRemountKey((k) => k + 1);
   };
 
   // Spline ランタイムの buildTimeline で出る "Missing property" の console.error を抑制（シーン側の参照不備で表示されるのみで動作には影響しない）
@@ -155,17 +161,26 @@ export function HeroSpline({
   return (
     <div ref={containerRef} className={className} style={{ minHeight: 0, maxWidth: "100%" }}>
       {shouldLoad ? (
-        <SplineErrorBoundary className="block h-full w-full overflow-hidden">
+        <SplineErrorBoundary className="relative block h-full w-full overflow-hidden">
           <div
+            key={splineRemountKey}
             className="h-full w-full [&_>*]:h-full [&_>*]:w-full [&_canvas]:h-full [&_canvas]:w-full [&_canvas]:cursor-grab [&_canvas]:active:cursor-grabbing"
             style={{ touchAction: "none", minHeight: "100%", minWidth: "100%" }}
           >
             <Spline
               scene={scene}
-              onLoad={handleSplineLoad}
               onSplineMouseDown={handleSplineMouseDown}
             />
           </div>
+          <button
+            type="button"
+            onClick={handleReplay}
+            className="hero-replay-top absolute right-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-neutral-800 shadow-md ring-1 ring-black/5 transition hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/60 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            title="Spline を再読み込み"
+            aria-label="Spline を再読み込み"
+          >
+            <ReplayIcon className="h-4 w-4" />
+          </button>
         </SplineErrorBoundary>
       ) : (
         <SplinePlaceholder className={className} />

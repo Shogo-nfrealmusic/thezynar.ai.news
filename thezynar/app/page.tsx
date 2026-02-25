@@ -25,8 +25,8 @@ export default function Home() {
         />
       </section>
 
+      {/* Latest News Section */}
       <LatestNewsSection activeCategory={activeCategory} />
     </main>
   );
 }
-

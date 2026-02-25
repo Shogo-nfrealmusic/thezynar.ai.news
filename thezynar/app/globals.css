@@ -5,6 +5,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* ヘッダー高さ: py-5(20px×2) + ロゴ h-9(36px) = 76px（floating-nav と再生ボタン配置で共用） */
+  --header-height: 76px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,4 +20,14 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* ヒーロー再生ボタン: ヘッダー下に配置、PC のみ 18px 下 */
+.hero-replay-top {
+  top: calc(var(--header-height) + 0.5rem);
+}
+@media (min-width: 768px) {
+  .hero-replay-top {
+    top: calc(var(--header-height) + 0.5rem + 18px);
+  }
 }
