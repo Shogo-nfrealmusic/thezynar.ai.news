@@ -105,20 +105,6 @@ export function HeroSpline({
   const [shouldLoad, setShouldLoad] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleSplineLoad = (spline: unknown) => {
-    const app = spline as { controls?: Record<string, unknown> };
-    if (!app?.controls) return;
-    const c = app.controls as Record<string, unknown>;
-    // オービット・パン・ズームを有効化（Three.js OrbitControls や Spline の controls 用）
-    const enableKeys = [
-      "enableOrbit", "enablePan", "enableZoom", "enabled",
-      "enableRotate", "enableDamping",
-    ];
-    enableKeys.forEach((key) => {
-      if (key in c) c[key] = true;
-    });
-  };
-
   // Spline ランタイムの buildTimeline で出る "Missing property" の console.error を抑制（シーン側の参照不備で表示されるのみで動作には影響しない）
   useEffect(() => {
     if (!shouldLoad) return;
@@ -162,7 +148,6 @@ export function HeroSpline({
           >
             <Spline
               scene={scene}
-              onLoad={handleSplineLoad}
               onSplineMouseDown={handleSplineMouseDown}
             />
           </div>
