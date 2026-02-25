@@ -105,11 +105,15 @@ export const FloatingNav = ({
       {mobileOpen && (
         <>
           <div
-            className="fixed inset-0 top-[73px] z-[4999] bg-black/40 md:hidden"
+            className="fixed inset-0 z-[4999] bg-black/40 md:hidden"
+            style={{ top: "var(--header-height)" }}
             aria-hidden
             onClick={() => setMobileOpen(false)}
           />
-          <div className="fixed left-0 right-0 top-[73px] z-[5001] border-b border-neutral-200 bg-white py-4 shadow-lg dark:border-neutral-800 dark:bg-neutral-950 md:hidden">
+          <div
+            className="fixed left-0 right-0 z-[5001] border-b border-neutral-200 bg-white py-4 shadow-lg dark:border-neutral-800 dark:bg-neutral-950 md:hidden"
+            style={{ top: "var(--header-height)" }}
+          >
             <nav className="flex flex-col px-4">
               {navItems.map((navItem, idx) => (
                 <Link
