@@ -21,22 +21,22 @@ export const FloatingNav = ({
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-[5000] flex items-center justify-between border-b border-neutral-200 bg-white/95 px-4 py-5 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-neutral-800 dark:bg-neutral-950/95 dark:supports-[backdrop-filter]:bg-neutral-950/80",
+        "fixed top-0 left-0 right-0 z-[5000] flex items-center justify-between border-b border-neutral-200 bg-white/95 pl-5 pr-4 py-5 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:border-neutral-800 dark:bg-neutral-950/95 dark:supports-[backdrop-filter]:bg-neutral-950/80",
         className
       )}
     >
-      {/* Logo: 常に左端・クリックで Home */}
+      {/* Logo: 左端ナビ寄り・クリックで Home */}
       <Link
         href="/"
-        className="flex shrink-0 items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 rounded"
+        className="ml-1 flex shrink-0 items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 rounded"
         aria-label="Home"
       >
         <Image
           src="/logo.png"
           alt="thezynar.ai"
-          width={140}
-          height={36}
-          className="h-8 w-auto sm:h-9 invert dark:invert-0"
+          width={360}
+          height={96}
+          className="h-20 w-auto sm:h-24 translate-y-3 invert dark:invert-0"
           priority
         />
       </Link>
