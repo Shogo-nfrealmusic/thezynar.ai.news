@@ -42,7 +42,7 @@ export default function Home() {
         />
       </section>
 
-      <section className="mx-auto max-w-4xl px-4 py-12">
+      <section className="mx-auto w-full max-w-6xl px-6 py-12 sm:px-8">
         <h2 className="mb-6 text-xl font-semibold text-neutral-900 dark:text-white">
           {activeCategory} — {filteredArticles.length} articles
         </h2>
