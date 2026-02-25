@@ -13,6 +13,12 @@ const Spline = dynamic(
 const SPLINE_SCENE_URL =
   "https://prod.spline.design/dTMAoDRVroDzvhts/scene.splinecode";
 
+/**
+ * シーンが動かない場合: Spline エディタで Export → Play Settings を確認してください。
+ * - Orbit, Pan, Zoom を有効に
+ * - Touch: Orbit / Pan を「1 Finger」に（タッチでドラッグできるように）
+ */
+
 /** 読み込み中・表示前の軽いプレースホルダー */
 function SplinePlaceholder({ className }: { className?: string } = {}) {
   return (
@@ -99,6 +105,20 @@ export function HeroSpline({
   const [shouldLoad, setShouldLoad] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const handleSplineLoad = (spline: unknown) => {
+    const app = spline as { controls?: Record<string, unknown> };
+    if (!app?.controls) return;
+    const c = app.controls as Record<string, unknown>;
+    // オービット・パン・ズームを有効化（Three.js OrbitControls や Spline の controls 用）
+    const enableKeys = [
+      "enableOrbit", "enablePan", "enableZoom", "enabled",
+      "enableRotate", "enableDamping",
+    ];
+    enableKeys.forEach((key) => {
+      if (key in c) c[key] = true;
+    });
+  };
+
   // Spline ランタイムの buildTimeline で出る "Missing property" の console.error を抑制（シーン側の参照不備で表示されるのみで動作には影響しない）
   useEffect(() => {
     if (!shouldLoad) return;
@@ -133,14 +153,19 @@ export function HeroSpline({
   };
 
   return (
-    <div ref={containerRef} className={className}>
+    <div ref={containerRef} className={className} style={{ minHeight: 0, maxWidth: "100%" }}>
       {shouldLoad ? (
-        <SplineErrorBoundary className={className}>
-          <Spline
-            scene={scene}
-            onSplineMouseDown={handleSplineMouseDown}
-            renderOnDemand
-          />
+        <SplineErrorBoundary className="block h-full w-full overflow-hidden">
+          <div
+            className="h-full w-full [&_>*]:h-full [&_>*]:w-full [&_canvas]:h-full [&_canvas]:w-full [&_canvas]:cursor-grab [&_canvas]:active:cursor-grabbing"
+            style={{ touchAction: "none", minHeight: "100%", minWidth: "100%" }}
+          >
+            <Spline
+              scene={scene}
+              onLoad={handleSplineLoad}
+              onSplineMouseDown={handleSplineMouseDown}
+            />
+          </div>
         </SplineErrorBoundary>
       ) : (
         <SplinePlaceholder className={className} />

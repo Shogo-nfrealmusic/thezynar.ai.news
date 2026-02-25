@@ -31,11 +31,14 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
-      <section className="relative h-screen w-full overflow-hidden">
+      <section
+        className="relative w-full max-w-[100vw] min-h-[100dvh] h-[100dvh] sm:min-h-screen sm:h-screen flex items-center justify-center overflow-hidden"
+        style={{ minHeight: "100vh" }}
+      >
         <HeroSpline
           scene={SPLINE_SCENE_URL}
           onCategorySelect={setActiveCategory}
-          className="absolute inset-0 h-full w-full"
+          className="absolute inset-0 h-full w-full min-h-0 min-w-0"
         />
       </section>
 
