@@ -1,7 +1,4 @@
-import type { Category } from "@/lib/types";
-import { LatestNewsSection } from "@/components/LatestNewsSection";
-
-const ACTIVE_CATEGORY: Category = "tech";
+import { TechNewsSection } from "@/components/TechNewsSection";
 
 export default async function TechPage({
   searchParams,
@@ -13,10 +10,7 @@ export default async function TechPage({
 
   return (
     <main className="min-h-screen bg-neutral-50 pb-16 pt-[calc(var(--header-height)+1rem)] text-neutral-900 dark:bg-neutral-950 dark:text-white">
-      <LatestNewsSection
-        activeCategory={ACTIVE_CATEGORY}
-        showSeeMore={false}
-        showPagination
+      <TechNewsSection
         currentPage={currentPage}
         basePath="/tech"
         className="border-t-0 pt-4"
