@@ -89,7 +89,7 @@ export const latestNews: LatestNewsItem[] = [
     author: "Dominic-Madori Davis",
     publishedAt: "9 hours ago",
     imageUrl:
-      "https://images.unsplash.com/photo-1518544887688-4e3f7bdff1ab?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80",
   },
   {
     id: 8,
@@ -113,7 +113,7 @@ export const latestNews: LatestNewsItem[] = [
     author: "Tim De Chant",
     publishedAt: "9 hours ago",
     imageUrl:
-      "https://images.unsplash.com/photo-1542309661-8231eafa1c1b?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
   },
   {
     id: 10,
