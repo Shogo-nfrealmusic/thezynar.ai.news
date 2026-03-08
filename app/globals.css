@@ -6,8 +6,8 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  /* ヘッダー高さ: py-5 + ロゴ h-20 → 120px（sm 以上は h-24 で 136px） */
-  --header-height: 120px;
+  /* フローティングヘッダー: pt-4 (16px) + py-3 (12px×2) + logo h-10 (40px) = 80px */
+  --header-height: 80px;
 
   /* shadcn/ui 用 */
   --card: 0 0% 100%;
@@ -32,7 +32,8 @@
 
 @media (min-width: 640px) {
   :root {
-    --header-height: 136px;
+    /* sm以上: pt-6 (24px) + py-4 (16px×2) + logo h-12 (48px) = 104px */
+    --header-height: 104px;
   }
 }
 
