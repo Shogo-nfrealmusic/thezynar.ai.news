@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { latestNews, type LatestNewsItem } from "@/lib/mockLatestNews";
 import { cn } from "@/lib/utils";
+import { MostPopularSidebar } from "@/components/MostPopularSidebar";
 
 const ITEMS_PER_PAGE = 12;
 
@@ -153,45 +154,6 @@ function CompactListItem({ article }: { article: LatestNewsItem }) {
   );
 }
 
-function MostPopularSidebar({ articles }: { articles: LatestNewsItem[] }) {
-  return (
-    <aside className="lg:sticky lg:top-[calc(var(--header-height)+1rem)] lg:self-start">
-      <div className="rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 p-4 text-white shadow-lg sm:rounded-3xl sm:p-5 md:p-6">
-        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-blue-200 sm:text-xs">
-          This week
-        </p>
-        <h3 className="mt-1 text-lg font-extrabold tracking-tight sm:mt-2 sm:text-xl">
-          Most Popular
-        </h3>
-        <p className="mt-1 text-[0.65rem] text-blue-100/90 sm:mt-2 sm:text-xs md:text-sm">
-          The tech stories readers couldn&apos;t stop clicking over the past
-          seven days.
-        </p>
-
-        <ol className="mt-3 space-y-2 text-sm sm:mt-4 sm:space-y-3">
-          {articles.slice(0, 5).map((item, index) => (
-            <li key={item.id} className="flex gap-2 sm:gap-3">
-              <span className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-blue-500/50 text-[0.65rem] font-semibold text-white sm:mt-1 sm:h-6 sm:w-6 sm:text-xs">
-                {index + 1}
-              </span>
-              <Link
-                href={`/news/${item.id}`}
-                className="group/rank flex-1 min-w-0"
-              >
-                <p className="text-[0.75rem] font-semibold leading-snug text-blue-50 group-hover/rank:text-white sm:text-[0.8rem]">
-                  {item.title}
-                </p>
-                <p className="mt-0.5 text-[0.6rem] text-blue-200/90 sm:mt-1 sm:text-[0.7rem]">
-                  {item.category.toUpperCase()} · {item.publishedAt}
-                </p>
-              </Link>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </aside>
-  );
-}
 
 export function TechNewsSection({
   currentPage = 1,
@@ -317,9 +279,7 @@ export function TechNewsSection({
             </nav>
           </div>
 
-          <div className="lg:w-4/12">
-            <MostPopularSidebar articles={techNews} />
-          </div>
+          <MostPopularSidebar articles={techNews} theme="blue" className="lg:w-4/12" />
         </div>
       </div>
     </section>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleShareBar } from "@/components/ArticleShareBar";
+import { MostPopularSidebar } from "@/components/MostPopularSidebar";
 import { getArticleById, latestNews } from "@/lib/mockLatestNews";
 import { cn } from "@/lib/utils";
 
@@ -125,39 +126,11 @@ export default async function NewsArticlePage({
           </article>
 
           {/* Sidebar: Most Popular（スクロール追従） */}
-          <aside className="lg:sticky lg:top-[calc(var(--header-height)+1rem)] lg:w-[35%] lg:min-w-[280px] lg:pl-8 lg:self-start">
-            <div className="rounded-3xl bg-violet-700 p-5 text-white shadow-lg sm:p-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-200">
-                This week
-              </p>
-              <h2 className="mt-2 text-xl font-extrabold tracking-tight">
-                Most Popular
-              </h2>
-              <p className="mt-2 text-xs text-violet-100/90 sm:text-sm">
-                The stories readers couldn&apos;t stop clicking over the past seven days.
-              </p>
-              <ol className="mt-4 space-y-3 text-sm">
-                {related.slice(0, 5).map((item, index) => (
-                  <li key={item.id} className="flex gap-3">
-                    <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-violet-500 text-xs font-semibold text-white">
-                      {index + 1}
-                    </span>
-                    <Link
-                      href={`/news/${item.id}`}
-                      className="group/rank flex-1"
-                    >
-                      <p className="text-[0.8rem] font-semibold leading-snug text-violet-50 group-hover/rank:text-white">
-                        {item.title}
-                      </p>
-                      <p className="mt-1 text-[0.7rem] text-violet-200/90">
-                        {item.category.toUpperCase()} · {item.publishedAt}
-                      </p>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </aside>
+          <MostPopularSidebar
+            articles={related}
+            theme="emerald"
+            className="lg:w-[35%] lg:min-w-[280px] lg:pl-8"
+          />
         </div>
       </div>
     </main>

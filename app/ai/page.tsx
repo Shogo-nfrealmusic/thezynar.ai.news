@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { latestNews, type LatestNewsItem } from "@/lib/mockLatestNews";
+import { MostPopularSidebar } from "@/components/MostPopularSidebar";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -162,7 +163,7 @@ export default async function AiPage({
     <main className="relative min-h-screen bg-neutral-950 pb-16 pt-[calc(var(--header-height)+0.5rem)]">
       <GridBackground />
       
-      <div className="relative z-10 mx-auto max-w-5xl px-4">
+      <div className="relative z-10 mx-auto max-w-6xl px-4">
         {/* Header */}
         <header className="border-b border-white/10 pb-6">
           <div className="flex items-center gap-2">
@@ -179,88 +180,96 @@ export default async function AiPage({
           </p>
         </header>
 
-        {/* Section 1: Featured Model */}
-        {featuredModel && (
-          <section className="mt-8">
-            <div className="mb-4 flex items-center gap-2">
-              <div className="h-px flex-1 bg-gradient-to-r from-purple-500/50 to-transparent" />
-              <h2 className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-purple-400">
-                Featured Model
-              </h2>
-              <div className="h-px flex-1 bg-gradient-to-l from-purple-500/50 to-transparent" />
-            </div>
-            <FeaturedModelCard article={featuredModel} />
-          </section>
-        )}
+        <div className="mt-8 flex flex-col gap-8 lg:flex-row">
+          {/* Main Content */}
+          <div className="flex-1 lg:w-8/12">
+            {/* Section 1: Featured Model */}
+            {featuredModel && (
+              <section>
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="h-px flex-1 bg-gradient-to-r from-purple-500/50 to-transparent" />
+                  <h2 className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-purple-400">
+                    Featured Model
+                  </h2>
+                  <div className="h-px flex-1 bg-gradient-to-l from-purple-500/50 to-transparent" />
+                </div>
+                <FeaturedModelCard article={featuredModel} />
+              </section>
+            )}
 
-        {/* Section 2: Model Releases */}
-        {modelReleases.length > 0 && (
-          <section className="mt-10">
-            <div className="mb-5 flex items-center gap-2">
-              <div className="h-px flex-1 bg-white/10" />
-              <h2 className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-neutral-500">
-                Model Releases
-              </h2>
-              <div className="h-px flex-1 bg-white/10" />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {modelReleases.map((article) => (
-                <ModelReleaseCard key={article.id} article={article} />
-              ))}
-            </div>
-          </section>
-        )}
+            {/* Section 2: Model Releases */}
+            {modelReleases.length > 0 && (
+              <section className="mt-10">
+                <div className="mb-5 flex items-center gap-2">
+                  <div className="h-px flex-1 bg-white/10" />
+                  <h2 className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-neutral-500">
+                    Model Releases
+                  </h2>
+                  <div className="h-px flex-1 bg-white/10" />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {modelReleases.map((article) => (
+                    <ModelReleaseCard key={article.id} article={article} />
+                  ))}
+                </div>
+              </section>
+            )}
 
-        {/* Section 3: AI Signals */}
-        {signals.length > 0 && (
-          <section className="mt-10">
-            <div className="mb-4 flex items-center gap-2">
-              <div className="h-px flex-1 bg-white/10" />
-              <h2 className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-neutral-500">
-                AI Signals
-              </h2>
-              <div className="h-px flex-1 bg-white/10" />
-            </div>
-            <div className="rounded-xl border border-white/5 bg-neutral-900/40 px-4 backdrop-blur-sm">
-              {signals.map((article, idx) => (
-                <SignalItem key={article.id} article={article} index={idx} />
-              ))}
-            </div>
-          </section>
-        )}
+            {/* Section 3: AI Signals */}
+            {signals.length > 0 && (
+              <section className="mt-10">
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="h-px flex-1 bg-white/10" />
+                  <h2 className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-neutral-500">
+                    AI Signals
+                  </h2>
+                  <div className="h-px flex-1 bg-white/10" />
+                </div>
+                <div className="rounded-xl border border-white/5 bg-neutral-900/40 px-4 backdrop-blur-sm">
+                  {signals.map((article, idx) => (
+                    <SignalItem key={article.id} article={article} index={idx} />
+                  ))}
+                </div>
+              </section>
+            )}
 
-        {/* Pagination */}
-        <nav className="mt-10 flex items-center justify-center gap-3 border-t border-white/10 pt-6" aria-label="Pagination">
-          {page > 1 ? (
-            <Link
-              href={page === 2 ? "/ai" : `/ai?page=${page - 1}`}
-              className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-neutral-900/60 px-4 py-2 font-mono text-xs text-neutral-400 backdrop-blur-sm transition-all hover:border-purple-500/30 hover:text-purple-300"
-            >
-              <span aria-hidden>←</span> Prev
-            </Link>
-          ) : (
-            <span className="inline-flex cursor-not-allowed items-center gap-1.5 rounded border border-white/5 bg-neutral-900/40 px-4 py-2 font-mono text-xs text-neutral-700">
-              <span aria-hidden>←</span> Prev
-            </span>
-          )}
+            {/* Pagination */}
+            <nav className="mt-10 flex items-center justify-center gap-3 border-t border-white/10 pt-6" aria-label="Pagination">
+              {page > 1 ? (
+                <Link
+                  href={page === 2 ? "/ai" : `/ai?page=${page - 1}`}
+                  className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-neutral-900/60 px-4 py-2 font-mono text-xs text-neutral-400 backdrop-blur-sm transition-all hover:border-purple-500/30 hover:text-purple-300"
+                >
+                  <span aria-hidden>←</span> Prev
+                </Link>
+              ) : (
+                <span className="inline-flex cursor-not-allowed items-center gap-1.5 rounded border border-white/5 bg-neutral-900/40 px-4 py-2 font-mono text-xs text-neutral-700">
+                  <span aria-hidden>←</span> Prev
+                </span>
+              )}
 
-          <span className="font-mono text-xs text-neutral-600">
-            {page} / {totalPages}
-          </span>
+              <span className="font-mono text-xs text-neutral-600">
+                {page} / {totalPages}
+              </span>
 
-          {page < totalPages ? (
-            <Link
-              href={`/ai?page=${page + 1}`}
-              className="inline-flex items-center gap-1.5 rounded border border-purple-500/50 bg-purple-500/10 px-4 py-2 font-mono text-xs text-purple-300 backdrop-blur-sm transition-all hover:bg-purple-500/20"
-            >
-              Next <span aria-hidden>→</span>
-            </Link>
-          ) : (
-            <span className="inline-flex cursor-not-allowed items-center gap-1.5 rounded border border-white/5 bg-neutral-900/40 px-4 py-2 font-mono text-xs text-neutral-700">
-              Next <span aria-hidden>→</span>
-            </span>
-          )}
-        </nav>
+              {page < totalPages ? (
+                <Link
+                  href={`/ai?page=${page + 1}`}
+                  className="inline-flex items-center gap-1.5 rounded border border-purple-500/50 bg-purple-500/10 px-4 py-2 font-mono text-xs text-purple-300 backdrop-blur-sm transition-all hover:bg-purple-500/20"
+                >
+                  Next <span aria-hidden>→</span>
+                </Link>
+              ) : (
+                <span className="inline-flex cursor-not-allowed items-center gap-1.5 rounded border border-white/5 bg-neutral-900/40 px-4 py-2 font-mono text-xs text-neutral-700">
+                  Next <span aria-hidden>→</span>
+                </span>
+              )}
+            </nav>
+          </div>
+
+          {/* Sidebar */}
+          <MostPopularSidebar articles={aiNews} theme="purple" className="lg:w-4/12" />
+        </div>
       </div>
     </main>
   );

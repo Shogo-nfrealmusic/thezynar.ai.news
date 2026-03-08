@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { latestNews, type LatestNewsItem } from "@/lib/mockLatestNews";
+import { MostPopularSidebar } from "@/components/MostPopularSidebar";
 
 function GridBackground() {
   return (
@@ -114,7 +115,7 @@ export default async function GadgetPage() {
     <main className="relative min-h-screen bg-neutral-950 pb-16 pt-[calc(var(--header-height)+0.5rem)]">
       <GridBackground />
       
-      <div className="relative z-10 mx-auto max-w-5xl px-4">
+      <div className="relative z-10 mx-auto max-w-6xl px-4">
         {/* Header */}
         <header className="border-b border-white/10 pb-6">
           <div className="flex items-center gap-2">
@@ -131,53 +132,61 @@ export default async function GadgetPage() {
           </p>
         </header>
 
-        {/* Section 1: Hardware Nodes Grid */}
-        <section className="mt-8">
-          <div className="mb-5 flex items-center gap-2">
-            <div className="h-px flex-1 bg-gradient-to-r from-orange-500/50 to-transparent" />
-            <h2 className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-orange-400">
-              Hardware Nodes
-            </h2>
-            <div className="h-px flex-1 bg-gradient-to-l from-orange-500/50 to-transparent" />
-          </div>
-          
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-            {featuredNode && (
-              <HardwareNode article={featuredNode} featured />
-            )}
-            {hardwareNodes.map((article) => (
-              <HardwareNode key={article.id} article={article} />
-            ))}
-          </div>
-        </section>
+        <div className="mt-8 flex flex-col gap-8 lg:flex-row">
+          {/* Main Content */}
+          <div className="flex-1 lg:w-8/12">
+            {/* Section 1: Hardware Nodes Grid */}
+            <section>
+              <div className="mb-5 flex items-center gap-2">
+                <div className="h-px flex-1 bg-gradient-to-r from-orange-500/50 to-transparent" />
+                <h2 className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-orange-400">
+                  Hardware Nodes
+                </h2>
+                <div className="h-px flex-1 bg-gradient-to-l from-orange-500/50 to-transparent" />
+              </div>
+              
+              <div className="grid gap-4 sm:grid-cols-2">
+                {featuredNode && (
+                  <HardwareNode article={featuredNode} featured />
+                )}
+                {hardwareNodes.map((article) => (
+                  <HardwareNode key={article.id} article={article} />
+                ))}
+              </div>
+            </section>
 
-        {/* Section 2: Latest Hardware News */}
-        <section className="mt-10">
-          <div className="mb-4 flex items-center gap-2">
-            <div className="h-px flex-1 bg-white/10" />
-            <h2 className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-neutral-500">
-              Latest Hardware News
-            </h2>
-            <div className="h-px flex-1 bg-white/10" />
-          </div>
-          
-          <div className="rounded-xl border border-white/5 bg-neutral-900/40 px-4 backdrop-blur-sm">
-            {latestHardware.map((article) => (
-              <CompactNewsItem key={article.id} article={article} />
-            ))}
-          </div>
-        </section>
+            {/* Section 2: Latest Hardware News */}
+            <section className="mt-10">
+              <div className="mb-4 flex items-center gap-2">
+                <div className="h-px flex-1 bg-white/10" />
+                <h2 className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-neutral-500">
+                  Latest Hardware News
+                </h2>
+                <div className="h-px flex-1 bg-white/10" />
+              </div>
+              
+              <div className="rounded-xl border border-white/5 bg-neutral-900/40 px-4 backdrop-blur-sm">
+                {latestHardware.map((article) => (
+                  <CompactNewsItem key={article.id} article={article} />
+                ))}
+              </div>
+            </section>
 
-        {/* Network Status Footer */}
-        <div className="mt-10 flex items-center justify-center gap-4 border-t border-white/10 pt-6">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
-            <span className="font-mono text-[0.6rem] text-neutral-600">Network Online</span>
+            {/* Network Status Footer */}
+            <div className="mt-10 flex items-center justify-center gap-4 border-t border-white/10 pt-6">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+                <span className="font-mono text-[0.6rem] text-neutral-600">Network Online</span>
+              </div>
+              <span className="text-neutral-800">|</span>
+              <span className="font-mono text-[0.6rem] text-neutral-600">
+                {gadgetNews.length + allNews.length} Nodes Active
+              </span>
+            </div>
           </div>
-          <span className="text-neutral-800">|</span>
-          <span className="font-mono text-[0.6rem] text-neutral-600">
-            {gadgetNews.length + allNews.length} Nodes Active
-          </span>
+
+          {/* Sidebar */}
+          <MostPopularSidebar articles={gadgetNews.length > 0 ? gadgetNews : allNews} theme="orange" className="lg:w-4/12" />
         </div>
       </div>
     </main>

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getTrendingNews, latestNews, type LatestNewsItem } from "@/lib/mockLatestNews";
 import { cn } from "@/lib/utils";
+import { MostPopularSidebar } from "@/components/MostPopularSidebar";
 
 const RANK_STYLES = [
   "from-pink-400 to-rose-500",
@@ -201,6 +202,9 @@ export default async function TrendPage() {
 
           {/* Sidebar */}
           <aside className="space-y-8">
+            {/* Most Popular */}
+            <MostPopularSidebar articles={trendingItems} theme="pink" sticky={false} />
+
             {/* Section 2: Hot Topics - Tag Cloud */}
             <section className="rounded-2xl bg-neutral-900 p-5 ring-1 ring-neutral-800">
               <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-400">
