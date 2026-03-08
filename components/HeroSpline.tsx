@@ -176,8 +176,8 @@ export function HeroSpline({
             type="button"
             onClick={handleReplay}
             className="hero-replay-top absolute right-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 text-neutral-800 shadow-md ring-1 ring-black/5 transition hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-white/60 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
-            title="Spline を再読み込み"
-            aria-label="Spline を再読み込み"
+            title="Reload Spline"
+            aria-label="Reload Spline"
           >
             <ReplayIcon className="h-4 w-4" />
           </button>

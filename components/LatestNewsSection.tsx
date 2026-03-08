@@ -4,10 +4,16 @@ import type { Category } from "@/lib/types";
 import { latestNews } from "@/lib/mockLatestNews";
 import { cn } from "@/lib/utils";
 
+const ITEMS_PER_PAGE = 10;
+
 interface LatestNewsSectionProps {
   activeCategory?: Category;
   limit?: number;
   showSeeMore?: boolean;
+  showPagination?: boolean;
+  currentPage?: number;
+  basePath?: string;
+  itemsPerPage?: number;
   className?: string;
 }
 
@@ -15,12 +21,24 @@ export function LatestNewsSection({
   activeCategory = "latest",
   limit = 10,
   showSeeMore = true,
+  showPagination = false,
+  currentPage = 1,
+  basePath = "/latest",
+  itemsPerPage = ITEMS_PER_PAGE,
   className,
 }: LatestNewsSectionProps) {
-  const items =
+  const allFiltered =
     activeCategory === "latest"
-      ? latestNews.slice(0, limit)
-      : latestNews.filter((item) => item.category === activeCategory).slice(0, limit);
+      ? latestNews
+      : latestNews.filter((item) => item.category === activeCategory);
+
+  const totalItems = allFiltered.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+  const page = Math.max(1, Math.min(currentPage, totalPages));
+
+  const items = showPagination
+    ? allFiltered.slice((page - 1) * itemsPerPage, page * itemsPerPage)
+    : allFiltered.slice(0, limit);
 
   const headingLabel =
     activeCategory === "latest"
@@ -72,7 +90,7 @@ export function LatestNewsSection({
                   className="group rounded-2xl border border-neutral-200 bg-white/95 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-500/70 hover:shadow-md dark:border-neutral-800 dark:bg-neutral-900/95"
                 >
                   <Link
-                    href="/latest"
+                    href={`/news/${item.id}`}
                     className="flex gap-4 p-3 sm:p-4"
                     aria-label={item.title}
                   >
@@ -108,10 +126,52 @@ export function LatestNewsSection({
                 </li>
               ))}
             </ul>
+
+            {/* Pagination: Prev / Next（tech / AI / latest で常に表示） */}
+            {showPagination && (
+              <nav
+                className="mt-8 flex items-center justify-center gap-3"
+                aria-label="Pagination"
+              >
+                {page > 1 ? (
+                  <Link
+                    href={page === 2 ? basePath : `${basePath}?page=${page - 1}`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 shadow-sm transition hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
+                  >
+                    <span aria-hidden>←</span> Prev
+                  </Link>
+                ) : (
+                  <span
+                    className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-400 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-500"
+                    aria-disabled
+                  >
+                    <span aria-hidden>←</span> Prev
+                  </span>
+                )}
+                <span className="text-sm text-neutral-500 dark:text-neutral-400">
+                  Page {page} of {totalPages}
+                </span>
+                {page < totalPages ? (
+                  <Link
+                    href={`${basePath}?page=${page + 1}`}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/70 bg-white px-4 py-2 text-sm font-medium text-emerald-700 shadow-sm transition hover:bg-emerald-50 dark:border-emerald-400/70 dark:bg-neutral-800 dark:text-emerald-200 dark:hover:bg-emerald-900/30"
+                  >
+                    Next <span aria-hidden>→</span>
+                  </Link>
+                ) : (
+                  <span
+                    className="inline-flex cursor-not-allowed items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-400 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-500"
+                    aria-disabled
+                  >
+                    Next <span aria-hidden>→</span>
+                  </span>
+                )}
+              </nav>
+            )}
           </div>
 
-          {/* Weekly ranking sidebar */}
-          <aside className="lg:w-4/12 lg:self-start">
+          {/* Weekly ranking sidebar（スクロール追従） */}
+          <aside className="lg:sticky lg:top-[calc(var(--header-height)+1rem)] lg:w-4/12 lg:self-start">
             <div className="rounded-3xl bg-violet-700 p-5 text-white shadow-lg sm:p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-violet-200">
                 This week
@@ -131,7 +191,7 @@ export function LatestNewsSection({
                       {index + 1}
                     </span>
                     <Link
-                      href={`/latest#article-${item.id}`}
+                      href={`/news/${item.id}`}
                       className="group/rank flex-1"
                     >
                       <p className="text-[0.8rem] font-semibold leading-snug text-violet-50 group-hover/rank:text-white">

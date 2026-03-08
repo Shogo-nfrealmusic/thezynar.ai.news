@@ -1,8 +1,26 @@
-export default function AiPage() {
+import type { Category } from "@/lib/types";
+import { LatestNewsSection } from "@/components/LatestNewsSection";
+
+const ACTIVE_CATEGORY: Category = "ai";
+
+export default async function AiPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const currentPage = Math.max(1, parseInt(String(params?.page ?? "1"), 10) || 1);
+
   return (
-    <main className="min-h-screen pt-32 px-4">
-      <h1 className="text-2xl font-semibold">AI</h1>
-      <p className="text-neutral-600 dark:text-neutral-400">AI カテゴリの記事一覧（準備中）</p>
+    <main className="min-h-screen bg-neutral-50 pb-16 pt-[calc(var(--header-height)+1rem)] text-neutral-900 dark:bg-neutral-950 dark:text-white">
+      <LatestNewsSection
+        activeCategory={ACTIVE_CATEGORY}
+        showSeeMore={false}
+        showPagination
+        currentPage={currentPage}
+        basePath="/ai"
+        className="border-t-0 pt-4"
+      />
     </main>
   );
 }
