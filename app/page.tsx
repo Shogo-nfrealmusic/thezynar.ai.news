@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { HeroSpline } from "@/components/HeroSpline";
+import { MobileHeroNews } from "@/components/MobileHeroNews";
 import type { Category } from "@/lib/types";
 import { LatestNewsSection } from "@/components/LatestNewsSection";
 import { EmailModal } from "@/components/ui/email-modal";
@@ -30,15 +31,20 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-white">
+      {/* Desktop (lg+): 3D hero. Mobile/tablet: static Top AI News hero so touch scroll works. */}
       <section
-        className="relative flex h-[100dvh] min-h-[100dvh] w-full max-w-[100vw] items-center justify-center overflow-hidden sm:h-screen sm:min-h-screen"
-        style={{ minHeight: "100vh" }}
+        className="relative flex w-full max-w-[100vw] items-center justify-center overflow-hidden lg:h-screen lg:min-h-screen"
       >
-        <HeroSpline
-          scene={SPLINE_SCENE_URL}
-          onCategorySelect={setActiveCategory}
-          className="absolute inset-0 h-full w-full min-h-0 min-w-0"
-        />
+        <div className="absolute inset-0 hidden lg:block">
+          <HeroSpline
+            scene={SPLINE_SCENE_URL}
+            onCategorySelect={setActiveCategory}
+            className="absolute inset-0 h-full w-full min-h-0 min-w-0"
+          />
+        </div>
+        <div className="block w-full lg:hidden">
+          <MobileHeroNews />
+        </div>
       </section>
 
       {/* Latest News Section（ナビと被らないよう上部余白） */}
