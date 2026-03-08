@@ -73,7 +73,7 @@ export const FloatingNav = ({
           onClick={() => setMobileOpen((o) => !o)}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200"
           aria-expanded={mobileOpen}
-          aria-label="メニュー"
+          aria-label="Menu"
         >
           <svg
             className="h-5 w-5"

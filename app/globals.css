@@ -5,8 +5,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  /* ヘッダー高さ: py-5(20px×2) + ロゴ h-9(36px) = 76px（floating-nav と再生ボタン配置で共用） */
-  --header-height: 76px;
+  /* ヘッダー高さ: py-5(20px×2) + ロゴ h-20/h-24 = 約120–136px（floating-nav とコンテンツ余白で共用） */
+  --header-height: 8.5rem; /* 136px: ナビと被らない main 用 */
 }
 
 @media (prefers-color-scheme: dark) {

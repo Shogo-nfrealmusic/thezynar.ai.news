@@ -25,8 +25,11 @@ export default function Home() {
         />
       </section>
 
-      {/* Latest News Section */}
-      <LatestNewsSection activeCategory={activeCategory} />
+      {/* Latest News Section（ナビと被らないよう上部余白） */}
+      <LatestNewsSection
+        activeCategory={activeCategory}
+        className="pt-[calc(var(--header-height)+1rem)]"
+      />
     </main>
   );
 }
