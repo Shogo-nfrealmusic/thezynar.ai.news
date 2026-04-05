@@ -15,7 +15,7 @@ const MAX_BODY_SCRAPE = 72;
 // service_role key は RLS をバイパスして insert できる
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
 // ─── RSS ──────────────────────────────────────────────────────
@@ -80,10 +80,9 @@ function stripHtml(html: string): string {
 }
 
 function extractTag(xml: string, tag: string): string {
-  // CDATA あり / なし 両対応
   const re = new RegExp(
     `<${tag}[^>]*>\\s*(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?\\s*<\\/${tag}>`,
-    "i"
+    "i",
   );
   return xml.match(re)?.[1]?.trim() ?? "";
 }
@@ -119,8 +118,8 @@ function parseRSS(xml: string): RSSItem[] {
     const title = unescapeHtml(extractTag(block, "title"));
     const link = unescapeHtml(
       extractTag(block, "link") ||
-      block.match(/<link\s*\/?>\s*([^\s<]+)/i)?.[1]?.trim() ||
-      ""
+        block.match(/<link\s*\/?>\s*([^\s<]+)/i)?.[1]?.trim() ||
+        "",
     );
 
     // 本文: content:encoded > dc:content > description
@@ -137,24 +136,34 @@ function parseRSS(xml: string): RSSItem[] {
       extractAttr(block, "media:content", "url") ||
       extractAttr(block, "enclosure", "url") ||
       (() => {
-        const src = (contentEncoded || description).match(/<img[^>]+src="([^"]+)"/i)?.[1] ?? "";
+        const src =
+          (contentEncoded || description).match(
+            /<img[^>]+src="([^"]+)"/i,
+          )?.[1] ?? "";
         return unescapeHtml(src);
       })() ||
       "";
 
-    const pubDate = extractTag(block, "pubDate") || extractTag(block, "dc:date");
+    const pubDate =
+      extractTag(block, "pubDate") || extractTag(block, "dc:date");
     const publishedAt = pubDate
       ? new Date(pubDate).toISOString()
       : new Date().toISOString();
 
     const author = unescapeHtml(
-      extractTag(block, "dc:creator") ||
-      extractTag(block, "author") ||
-      ""
+      extractTag(block, "dc:creator") || extractTag(block, "author") || "",
     );
 
     if (title && link) {
-      items.push({ title, link, summary, body, thumbnail, publishedAt, author });
+      items.push({
+        title,
+        link,
+        summary,
+        body,
+        thumbnail,
+        publishedAt,
+        author,
+      });
     }
   }
 
@@ -163,10 +172,12 @@ function parseRSS(xml: string): RSSItem[] {
 
 async function fetchRSS(
   feed: (typeof RSS_FEEDS)[number],
-  range: ReturnType<typeof getNewsDayRangeUtc>
+  range: ReturnType<typeof getNewsDayRangeUtc>,
 ) {
   const res = await fetch(feed.url, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; thezynar-news-bot/1.0)" },
+    headers: {
+      "User-Agent": "Mozilla/5.0 (compatible; thezynar-news-bot/1.0)",
+    },
     next: { revalidate: 0 },
   });
   if (!res.ok) throw new Error(`RSS fetch failed: ${feed.url} (${res.status})`);
@@ -187,25 +198,65 @@ async function fetchRSS(
 const HN_KEYWORD_CATEGORIES: { keywords: string[]; category: Category }[] = [
   {
     keywords: [
-      "ai", "llm", "gpt", "openai", "anthropic", "claude", "gemini",
-      "deepmind", "machine learning", "neural", "diffusion", "transformer",
-      "stable diffusion", "midjourney", "mistral", "groq", "hugging face",
+      "ai",
+      "llm",
+      "gpt",
+      "openai",
+      "anthropic",
+      "claude",
+      "gemini",
+      "deepmind",
+      "machine learning",
+      "neural",
+      "diffusion",
+      "transformer",
+      "stable diffusion",
+      "midjourney",
+      "mistral",
+      "groq",
+      "hugging face",
     ],
     category: "ai",
   },
   {
     keywords: [
-      "iphone", "android", "samsung", "pixel", "headphones", "earbuds",
-      "smartwatch", "tablet", "macbook", "camera", "drone", "console",
-      "playstation", "xbox", "nintendo",
+      "iphone",
+      "android",
+      "samsung",
+      "pixel",
+      "headphones",
+      "earbuds",
+      "smartwatch",
+      "tablet",
+      "macbook",
+      "camera",
+      "drone",
+      "console",
+      "playstation",
+      "xbox",
+      "nintendo",
     ],
     category: "gadget",
   },
   {
     keywords: [
-      "startup", "funding", "ipo", "acquisition", "series a", "series b",
-      "yc", "y combinator", "vc", "venture", "saas", "cloud", "aws",
-      "kubernetes", "open source", "programming", "developer",
+      "startup",
+      "funding",
+      "ipo",
+      "acquisition",
+      "series a",
+      "series b",
+      "yc",
+      "y combinator",
+      "vc",
+      "venture",
+      "saas",
+      "cloud",
+      "aws",
+      "kubernetes",
+      "open source",
+      "programming",
+      "developer",
     ],
     category: "tech",
   },
@@ -232,20 +283,22 @@ function detectHNCategory(title: string): Category | null {
 
 async function fetchHackerNews(
   limit: number,
-  range: ReturnType<typeof getNewsDayRangeUtc>
+  range: ReturnType<typeof getNewsDayRangeUtc>,
 ) {
   const idsRes = await fetch(
     "https://hacker-news.firebaseio.com/v0/topstories.json",
-    { next: { revalidate: 0 } }
+    { next: { revalidate: 0 } },
   );
   const ids: number[] = await idsRes.json();
 
   const stories = await Promise.all(
-    ids.slice(0, 120).map((id) =>
-      fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(
-        (r) => r.json()
-      )
-    )
+    ids
+      .slice(0, 120)
+      .map((id) =>
+        fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then(
+          (r) => r.json(),
+        ),
+      ),
   );
 
   const matched: FetchedItem[] = [];
@@ -298,20 +351,25 @@ export async function GET(request: Request) {
     // RSS + HN を並列取得（各ソース失敗しても他を継続）
     const hnItemsPromise: Promise<FetchedItem[]> = fetchHackerNews(
       MAX_HN_MATCHED,
-      dayRange
+      dayRange,
     ).catch(() => []);
     const rssPromises = Promise.allSettled(
-      RSS_FEEDS.map((feed) => fetchRSS(feed, dayRange))
+      RSS_FEEDS.map((feed) => fetchRSS(feed, dayRange)),
     );
-    const [hnItems, rssSettled] = await Promise.all([hnItemsPromise, rssPromises]);
+    const [hnItems, rssSettled] = await Promise.all([
+      hnItemsPromise,
+      rssPromises,
+    ]);
     const rssItems: FetchedItem[] = rssSettled.flatMap((r) =>
-      r.status === "fulfilled" ? r.value : []
+      r.status === "fulfilled" ? r.value : [],
     );
     const allItems: FetchedItem[] = [...hnItems, ...rssItems];
 
     // RSSの失敗状況をログ
     const rssErrors = rssSettled
-      .map((r, i) => r.status === "rejected" ? `${RSS_FEEDS[i].source}: ${r.reason}` : null)
+      .map((r, i) =>
+        r.status === "rejected" ? `${RSS_FEEDS[i].source}: ${r.reason}` : null,
+      )
       .filter(Boolean);
 
     if (allItems.length === 0) {
@@ -346,11 +404,8 @@ export async function GET(request: Request) {
     const rows = deduped.map((item) => {
       const body = formatArticleBody(item.body);
       const summaryFlat =
-        body
-          .split(/\n\n+/)[0]
-          ?.trim()
-          .replace(/\s+/g, " ")
-          .slice(0, 420) ?? body.slice(0, 420);
+        body.split(/\n\n+/)[0]?.trim().replace(/\s+/g, " ").slice(0, 420) ??
+        body.slice(0, 420);
       return {
         title: item.title,
         summary: summaryFlat,
@@ -360,7 +415,7 @@ export async function GET(request: Request) {
             ? item.thumbnail
             : pickFallbackThumbnail(
                 item.category,
-                `${item.title}\n${item.link ?? ""}`
+                `${item.title}\n${item.link ?? ""}`,
               ),
         link: item.link || null,
         category: item.category,
