@@ -1,16 +1,12 @@
-import Image from "next/image";
+import { ArticleBody } from "@/components/ArticleBody";
+import { ArticleThumbnail } from "@/components/ArticleThumbnail";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArticleShareBar } from "@/components/ArticleShareBar";
 import { MostPopularSidebar } from "@/components/MostPopularSidebar";
-import { getArticleById, latestNews } from "@/lib/mockLatestNews";
-import { cn } from "@/lib/utils";
+import { getArticleById, getLatestArticles, timeAgo } from "@/lib/articles";
 
-const DUMMY_PARAGRAPHS = [
-  "Industry analysts point to shifting regulatory landscapes and increased investment in domestic capabilities as key drivers. Executives from leading firms are expected to comment on the outlook during earnings calls later this quarter.",
-  "The move comes as competitors double down on similar initiatives, with market share and talent retention remaining top priorities. Further updates are anticipated in the coming weeks as more details emerge from official channels.",
-  "Stakeholders have welcomed the development, though some have called for greater transparency around timelines and implementation. A full report is expected to be published by the end of the month.",
-];
+export const revalidate = 300;
 
 export default async function NewsArticlePage({
   params,
@@ -18,35 +14,39 @@ export default async function NewsArticlePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const articleId = parseInt(id, 10);
-  if (Number.isNaN(articleId)) notFound();
-
-  const article = getArticleById(articleId);
+  const { article } = await getArticleById(id);
   if (!article) notFound();
 
-  const related = latestNews.filter((a) => a.id !== article.id).slice(0, 5);
+  const { articles: related } = await getLatestArticles(1, 6);
+  const sidebar = related.filter((a) => a.id !== article.id).slice(0, 5);
+
+  // MostPopularSidebar が期待する shape に変換
+  const sidebarItems = sidebar.map((a, i) => ({
+    id: i + 1,
+    title: a.title,
+    category: a.category,
+    summary: a.summary,
+    author: a.author,
+    publishedAt: timeAgo(a.created_at),
+    imageUrl: a.thumbnail,
+    href: `/news/${a.id}`,
+  }));
 
   return (
-    <main
-      className={cn(
-        "min-h-screen bg-neutral-50 pb-16 pt-[calc(var(--header-height)+1rem)] text-neutral-900 dark:bg-neutral-950 dark:text-white"
-      )}
-    >
+    <main className="min-h-screen bg-neutral-50 pb-16 pt-[calc(var(--header-height)+1rem)] text-neutral-900 dark:bg-neutral-950 dark:text-white">
       <div className="mx-auto max-w-6xl px-4">
         {/* Hero: thumbnail + title block */}
         <header className="grid grid-cols-1 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900 lg:grid-cols-[1fr,minmax(320px,40%)]">
           <div className="relative aspect-[16/10] min-h-[240px] lg:aspect-auto lg:min-h-[360px]">
-            <Image
-              src={article.imageUrl}
+            <ArticleThumbnail
+              src={article.thumbnail}
               alt=""
+              fallback="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=60"
               fill
               sizes="(min-width: 1024px) 60vw, 100vw"
               className="object-cover"
               priority
             />
-            <span className="absolute bottom-2 left-2 text-[0.65rem] text-white/80 drop-shadow">
-              Image: Unsplash
-            </span>
           </div>
           <div className="flex flex-col justify-center bg-emerald-600 px-6 py-8 dark:bg-emerald-700">
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-100">
@@ -56,7 +56,8 @@ export default async function NewsArticlePage({
               {article.title}
             </h1>
             <p className="mt-4 text-sm text-emerald-50">
-              {article.author} · {article.publishedAt}
+              {article.author ? `${article.author} · ` : ""}
+              {article.source} · {timeAgo(article.created_at)}
             </p>
             <div className="mt-6 flex items-center gap-2">
               <span className="text-xs text-emerald-100">Share</span>
@@ -78,15 +79,6 @@ export default async function NewsArticlePage({
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
               </button>
-              <button
-                type="button"
-                className="rounded p-1.5 text-white/80 transition hover:bg-white/20 hover:text-white"
-                aria-label="Copy link"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.172-1.172a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.172 1.172z" />
-                </svg>
-              </button>
             </div>
           </div>
         </header>
@@ -94,16 +86,7 @@ export default async function NewsArticlePage({
         <div className="mt-8 flex flex-col gap-8 lg:flex-row">
           {/* Main content */}
           <article className="min-w-0 flex-1 lg:max-w-[65%]">
-            <div className="prose prose-neutral dark:prose-invert max-w-none">
-              <p className="text-lg leading-relaxed text-neutral-700 dark:text-neutral-300">
-                {article.summary}
-              </p>
-              {DUMMY_PARAGRAPHS.map((para, i) => (
-                <p key={i} className="mt-4 leading-relaxed text-neutral-700 dark:text-neutral-300">
-                  {para}
-                </p>
-              ))}
-            </div>
+            <ArticleBody content={article.body} fallback={article.summary} />
 
             <ArticleShareBar title={article.title} className="mt-10" />
 
@@ -119,15 +102,15 @@ export default async function NewsArticlePage({
                   {article.category.toUpperCase()}
                 </Link>
                 <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
-                  News
+                  {article.source}
                 </span>
               </div>
             </div>
           </article>
 
-          {/* Sidebar: Most Popular（スクロール追従） */}
+          {/* Sidebar */}
           <MostPopularSidebar
-            articles={related}
+            articles={sidebarItems}
             theme="emerald"
             className="lg:w-[35%] lg:min-w-[280px] lg:pl-8"
           />

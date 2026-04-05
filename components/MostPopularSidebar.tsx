@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { latestNews, type LatestNewsItem } from "@/lib/mockLatestNews";
+
+// href を省略した場合は /news/${id} にフォールバック
+type SidebarItem = LatestNewsItem & { href?: string };
 import { cn } from "@/lib/utils";
 
 type ColorTheme = "blue" | "purple" | "orange" | "pink" | "emerald";
@@ -60,7 +63,7 @@ const themeStyles: Record<
 };
 
 interface MostPopularSidebarProps {
-  articles?: LatestNewsItem[];
+  articles?: SidebarItem[];
   theme?: ColorTheme;
   sticky?: boolean;
   className?: string;
@@ -72,7 +75,7 @@ export function MostPopularSidebar({
   sticky = true,
   className,
 }: MostPopularSidebarProps) {
-  const items = articles ?? latestNews.slice(0, 5);
+  const items: SidebarItem[] = articles ?? (latestNews.slice(0, 5) as SidebarItem[]);
   const displayItems = items.slice(0, 5);
   const styles = themeStyles[theme];
 
@@ -117,7 +120,7 @@ export function MostPopularSidebar({
             {displayItems.map((item, index) => (
               <li key={item.id} className="w-[200px] flex-shrink-0 sm:w-[240px]">
                 <Link
-                  href={`/news/${item.id}`}
+                  href={item.href ?? `/news/${item.id}`}
                   className="group/rank block rounded-xl border border-white/5 bg-neutral-800/50 p-3 transition-all hover:border-white/10 hover:bg-neutral-800"
                 >
                   <span
@@ -159,7 +162,7 @@ export function MostPopularSidebar({
                 {String(index + 1).padStart(2, "0")}
               </span>
               <Link
-                href={`/news/${item.id}`}
+                href={item.href ?? `/news/${item.id}`}
                 className="group/rank min-w-0 flex-1"
               >
                 <p
