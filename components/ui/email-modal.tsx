@@ -24,20 +24,37 @@ export function EmailModal({ trigger, open, onOpenChange }: EmailModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrorMsg(null);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
 
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    setEmail("");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to subscribe");
+      }
 
-    setTimeout(() => {
-      setIsSuccess(false);
-      onOpenChange?.(false);
-    }, 2000);
+      setIsSuccess(true);
+      setEmail("");
+
+      setTimeout(() => {
+        setIsSuccess(false);
+        onOpenChange?.(false);
+      }, 2000);
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const content = (
@@ -87,6 +104,9 @@ export function EmailModal({ trigger, open, onOpenChange }: EmailModalProps) {
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "Subscribing..." : "Subscribe"}
           </Button>
+          {errorMsg && (
+            <p className="text-sm text-red-500 text-center">{errorMsg}</p>
+          )}
         </form>
       )}
     </DialogContent>

@@ -4,10 +4,18 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { UserMenu } from "@/components/UserMenu";
+
+export interface NavUser {
+  displayName: string;
+  avatarUrl?: string;
+  email?: string;
+}
 
 export const FloatingNav = ({
   navItems,
   className,
+  user,
 }: {
   navItems: {
     name: string;
@@ -15,6 +23,7 @@ export const FloatingNav = ({
     icon?: React.ReactNode;
   }[];
   className?: string;
+  user?: NavUser | null;
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [visible, setVisible] = useState(true);
@@ -96,14 +105,22 @@ export const FloatingNav = ({
             ))}
           </nav>
 
-          {/* Desktop: 右端ボタン */}
+          {/* Desktop: 右端 */}
           <div className="hidden md:block">
-            <button
-              type="button"
-              className="rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
-            >
-              Login
-            </button>
+            {user ? (
+              <UserMenu
+                displayName={user.displayName}
+                avatarUrl={user.avatarUrl}
+                email={user.email}
+              />
+            ) : (
+              <Link
+                href="/login"
+                className="rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+              >
+                Login
+              </Link>
+            )}
           </div>
 
           {/* Mobile: ハンバーガーボタン（アニメーション付き） */}
@@ -214,17 +231,33 @@ export const FloatingNav = ({
 
         {/* 下部ボタン */}
         <div className="px-8 pb-12">
-          <button
-            type="button"
-            className={cn(
-              "w-full rounded-full bg-white py-4 text-center text-lg font-medium text-neutral-900 transition-all duration-300",
-              mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            )}
-            style={{ transitionDelay: mobileOpen ? "400ms" : "0ms" }}
-            tabIndex={mobileOpen ? 0 : -1}
-          >
-            Login
-          </button>
+          {user ? (
+            <Link
+              href="/dashboard"
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "block w-full rounded-full bg-white py-4 text-center text-lg font-medium text-neutral-900 transition-all duration-300",
+                mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              )}
+              style={{ transitionDelay: mobileOpen ? "400ms" : "0ms" }}
+              tabIndex={mobileOpen ? 0 : -1}
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "block w-full rounded-full bg-white py-4 text-center text-lg font-medium text-neutral-900 transition-all duration-300",
+                mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              )}
+              style={{ transitionDelay: mobileOpen ? "400ms" : "0ms" }}
+              tabIndex={mobileOpen ? 0 : -1}
+            >
+              Login
+            </Link>
+          )}
         </div>
       </div>
     </>
