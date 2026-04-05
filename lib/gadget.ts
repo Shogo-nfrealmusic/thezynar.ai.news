@@ -1,7 +1,8 @@
 /**
- * Gadget 記事の型とストア（形だけ）。
- * 後で Supabase に差し替える想定。
+ * Gadget 記事の型と Supabase 連携。
  */
+
+import { createClient } from "@/lib/supabase/server";
 
 export interface GadgetArticle {
   id: string;
@@ -20,61 +21,92 @@ export type GadgetArticleInput = Omit<
   "id" | "createdAt" | "updatedAt"
 >;
 
-// --- ストア（仮実装: メモリ。Supabase 接続時に差し替え） ---
+// --- DB row → GadgetArticle 変換 ---
 
-const store: GadgetArticle[] = [];
-
-function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+function toGadgetArticle(row: Record<string, unknown>): GadgetArticle {
+  return {
+    id: row.id as string,
+    thumbnail: (row.thumbnail as string) ?? "",
+    title: (row.title as string) ?? "",
+    summary: (row.summary as string) ?? "",
+    body: (row.body as string) ?? "",
+    link: (row.link as string) ?? "",
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  };
 }
 
 export async function getGadgetArticles(): Promise<GadgetArticle[]> {
-  // TODO: Supabase から取得
-  return [...store].sort(
-    (a, b) =>
-      new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  );
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("articles")
+    .select("*")
+    .eq("category", "gadget")
+    .order("updated_at", { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []).map(toGadgetArticle);
 }
 
 export async function getGadgetArticleById(
   id: string
 ): Promise<GadgetArticle | null> {
-  // TODO: Supabase から取得
-  return store.find((a) => a.id === id) ?? null;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("articles")
+    .select("*")
+    .eq("id", id)
+    .eq("category", "gadget")
+    .single();
+
+  if (error) return null;
+  return toGadgetArticle(data);
 }
 
 export async function createGadgetArticle(
   input: GadgetArticleInput
 ): Promise<GadgetArticle> {
-  const now = new Date().toISOString();
-  const article: GadgetArticle = {
-    id: generateId(),
-    ...input,
-    createdAt: now,
-    updatedAt: now,
-  };
-  store.push(article);
-  return article;
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("articles")
+    .insert({
+      title: input.title,
+      summary: input.summary,
+      body: input.body,
+      thumbnail: input.thumbnail,
+      link: input.link,
+      category: "gadget",
+      published: true,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return toGadgetArticle(data);
 }
 
 export async function updateGadgetArticle(
   id: string,
   input: Partial<GadgetArticleInput>
 ): Promise<GadgetArticle | null> {
-  const index = store.findIndex((a) => a.id === id);
-  if (index === -1) return null;
-  const now = new Date().toISOString();
-  store[index] = {
-    ...store[index],
-    ...input,
-    updatedAt: now,
-  };
-  return store[index];
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("articles")
+    .update(input)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) return null;
+  return toGadgetArticle(data);
 }
 
 export async function deleteGadgetArticle(id: string): Promise<boolean> {
-  const index = store.findIndex((a) => a.id === id);
-  if (index === -1) return false;
-  store.splice(index, 1);
-  return true;
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("articles")
+    .delete()
+    .eq("id", id);
+
+  return !error;
 }
