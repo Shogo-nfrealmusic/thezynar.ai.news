@@ -1,150 +1,138 @@
-import Link from "next/link";
 import { getLatestArticles, timeAgo } from "@/lib/articles";
-import { ArticleThumbnail } from "@/components/ArticleThumbnail";
-import { cn } from "@/lib/utils";
+import { SiteHeader } from "@/components/SiteHeader";
+import {
+  OverlayCard,
+  ImageCard,
+  TextCard,
+  AuthorTime,
+} from "@/components/ArticleCards";
 
-const ITEMS_PER_PAGE = 12;
+export const revalidate = 300;
 
-export const revalidate = 300; // 5分（当日フィードのため短め）
+const FALLBACK_IMG =
+  "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=1200&q=80";
 
-export default async function LatestPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ page?: string }>;
-}) {
-  const params = await searchParams;
-  const currentPage = Math.max(1, parseInt(String(params?.page ?? "1"), 10) || 1);
+export default async function LatestPage() {
+  const { articles } = await getLatestArticles(1, 12);
 
-  const { articles, total } = await getLatestArticles(currentPage, ITEMS_PER_PAGE);
-  const newsTz = process.env.NEWS_DAY_TIMEZONE ?? "Asia/Tokyo";
+  const items = articles.map((a) => ({
+    id: typeof a.id === "number" ? String(a.id) : a.id,
+    title: a.title,
+    category: a.category ?? "news",
+    summary: a.summary ?? "",
+    author: a.author ?? "",
+    time: timeAgo(a.created_at),
+    imageUrl: a.thumbnail ?? FALLBACK_IMG,
+  }));
 
-  const totalPages = Math.max(1, Math.ceil(total / ITEMS_PER_PAGE));
-  const page = Math.max(1, Math.min(currentPage, totalPages));
+  const hero = items[0];
+  const leftCol = items.slice(3, 6);
+  const rightCol = items.slice(6, 9);
+  const bottomPair = items.slice(1, 3);
+
+  const todayLabel = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
-    <main className="min-h-screen bg-neutral-950 pb-16 pt-[calc(var(--header-height)+0.5rem)]">
-      <div className="mx-auto max-w-4xl px-4">
-        {/* Header */}
-        <header className="border-b border-white/10 pb-6">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-emerald-400">
-              Live Feed
-            </p>
-          </div>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+    <div className="bg-white min-h-screen font-[Inter,sans-serif]">
+      <SiteHeader active="Latest" />
+
+      {/* ① 緑ヘッダーバー */}
+      <div className="bg-[#0a8935] py-6 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <div className="max-w-[1360px] mx-auto flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+          <h1 className="text-white text-[40px] sm:text-[56px] font-bold leading-none tracking-[-1.5px]">
             Latest News
           </h1>
-          <p className="mt-2 font-mono text-xs text-neutral-500">
-            Today only ({newsTz}). Older fetched items are removed on the next fetch.
+          <p className="text-white/80 text-[13px] sm:text-[14px] font-medium tracking-[0.5px] sm:pb-2">
+            {todayLabel}
           </p>
-        </header>
-
-        {/* News Feed */}
-        <div className="mt-6 divide-y divide-white/5">
-          {articles.length === 0 ? (
-            <p className="py-12 text-center font-mono text-sm text-neutral-600">
-              No articles yet.{" "}
-              <a href="/api/fetch-news" className="text-emerald-400 underline">
-                Fetch news
-              </a>{" "}
-              to populate.
-            </p>
-          ) : (
-            articles.map((item, idx) => (
-              <article
-                key={item.id}
-                className={cn(
-                  "group relative py-5 transition-all duration-300",
-                  "hover:bg-emerald-500/5",
-                  idx === 0 && "pt-0"
-                )}
-              >
-                <Link href={`/news/${item.id}`} className="flex gap-4 sm:gap-5">
-                  {/* Thumbnail */}
-                  <div className="relative h-20 w-28 flex-shrink-0 overflow-hidden rounded-lg border border-white/10 bg-neutral-800 transition-all group-hover:border-emerald-500/30 sm:h-24 sm:w-36">
-                    <ArticleThumbnail
-                      src={item.thumbnail}
-                      alt={item.title}
-                      fallback={`https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=400&q=60`}
-                      fill
-                      sizes="(min-width: 640px) 144px, 112px"
-                      className="object-cover opacity-70 transition-all duration-500 group-hover:scale-110 group-hover:opacity-100"
-                    />
-                  </div>
-
-                  {/* Content */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="rounded border border-emerald-500/30 bg-emerald-500/10 px-1.5 py-0.5 text-[0.55rem] font-mono uppercase tracking-wider text-emerald-400">
-                        {item.category}
-                      </span>
-                      <span className="text-[0.6rem] font-mono text-neutral-600">
-                        {timeAgo(item.created_at)}
-                      </span>
-                    </div>
-
-                    <h2 className="mt-1.5 text-sm font-semibold leading-snug text-neutral-200 transition-colors group-hover:text-emerald-300 sm:text-base">
-                      {item.title}
-                    </h2>
-
-                    <p className="mt-1 line-clamp-2 text-xs text-neutral-500 sm:text-sm">
-                      {item.summary}
-                    </p>
-
-                    <p className="mt-2 text-[0.6rem] font-mono text-neutral-600">
-                      {item.author ? `By ${item.author} · ` : ""}
-                      {item.source}
-                    </p>
-                  </div>
-
-                  {/* Arrow indicator */}
-                  <div className="hidden items-center text-neutral-700 transition-all group-hover:translate-x-1 group-hover:text-emerald-400 sm:flex">
-                    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </Link>
-              </article>
-            ))
-          )}
         </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <nav className="mt-8 flex items-center justify-center gap-3 border-t border-white/10 pt-6" aria-label="Pagination">
-            {page > 1 ? (
-              <Link
-                href={page === 2 ? "/latest" : `/latest?page=${page - 1}`}
-                className="inline-flex items-center gap-1.5 rounded border border-white/10 bg-neutral-900/60 px-4 py-2 font-mono text-xs text-neutral-400 backdrop-blur-sm transition-all hover:border-emerald-500/30 hover:text-emerald-300"
-              >
-                <span aria-hidden>←</span> Prev
-              </Link>
-            ) : (
-              <span className="inline-flex cursor-not-allowed items-center gap-1.5 rounded border border-white/5 bg-neutral-900/40 px-4 py-2 font-mono text-xs text-neutral-700">
-                <span aria-hidden>←</span> Prev
-              </span>
-            )}
-
-            <span className="font-mono text-xs text-neutral-600">
-              {page} / {totalPages}
-            </span>
-
-            {page < totalPages ? (
-              <Link
-                href={`/latest?page=${page + 1}`}
-                className="inline-flex items-center gap-1.5 rounded border border-emerald-500/50 bg-emerald-500/10 px-4 py-2 font-mono text-xs text-emerald-300 backdrop-blur-sm transition-all hover:bg-emerald-500/20"
-              >
-                Next <span aria-hidden>→</span>
-              </Link>
-            ) : (
-              <span className="inline-flex cursor-not-allowed items-center gap-1.5 rounded border border-white/5 bg-neutral-900/40 px-4 py-2 font-mono text-xs text-neutral-700">
-                Next <span aria-hidden>→</span>
-              </span>
-            )}
-          </nav>
-        )}
       </div>
-    </main>
+
+      {/* ② 新聞グリッド */}
+      <section className="bg-white py-8">
+        <div className="max-w-[1360px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-0">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr_1fr] gap-8">
+
+            {/* 左コラム */}
+            <div className="flex flex-col gap-6">
+              {leftCol.map((article) => (
+                <TextCard
+                  key={article.id}
+                  href={`/news/${article.id}`}
+                  category={article.category}
+                  title={article.title}
+                  author={article.author}
+                  time={article.time}
+                />
+              ))}
+            </div>
+
+            {/* 中央コラム */}
+            {hero && (
+              <div className="flex flex-col gap-4">
+                <div className="h-[480px]">
+                  <OverlayCard
+                    href={`/news/${hero.id}`}
+                    img={hero.imageUrl}
+                    category={hero.category}
+                    title={hero.title}
+                    author={hero.author}
+                    time={hero.time}
+                    titleSize="lg"
+                  />
+                </div>
+                {hero.summary && (
+                  <p className="text-[#212623] text-[15px] leading-[1.6] border-b border-[#d2dcd7] pb-4">
+                    {hero.summary}
+                  </p>
+                )}
+                <AuthorTime author={hero.author} time={hero.time} />
+              </div>
+            )}
+
+            {/* 右コラム */}
+            <div className="flex flex-col gap-6">
+              {rightCol.map((article) => (
+                <TextCard
+                  key={article.id}
+                  href={`/news/${article.id}`}
+                  category={article.category}
+                  title={article.title}
+                  author={article.author}
+                  time={article.time}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ③ ボーダー */}
+      <div className="border-t border-[#d2dcd7]" />
+
+      {/* ④ 2列 ImageCard グリッド */}
+      <section className="bg-white py-8">
+        <div className="max-w-[1360px] mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {bottomPair.map((article) => (
+              <ImageCard
+                key={article.id}
+                href={`/news/${article.id}`}
+                img={article.imageUrl}
+                category={article.category}
+                title={article.title}
+                author={article.author}
+                time={article.time}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
