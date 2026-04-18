@@ -4,6 +4,18 @@
 
 const SOFT_PARAGRAPH_MAX = 520;
 
+/** CSSコードが混入した段落を検出して除去する */
+function isCssParagraph(text: string): boolean {
+  const indicators = (
+    text.match(
+      /\{[^}]*\}|\.css-[\w-]+|var\(--[\w-]+|@media\s+screen|font-size:|display:\s*(?:flex|none|block|inline)|padding(?:-\w+)?:|margin(?:-\w+)?:|position:\s*(?:absolute|relative|fixed)|background:|border(?:-\w+)?:|opacity:|z-index:|line-height:|flex-shrink:|vertical-align:|box-shadow:|transition:|outline:|white-space:|letter-spacing:|text-align:|font-weight:|border-radius:/gi,
+    ) || []
+  ).length;
+  if (indicators === 0) return false;
+  // 500文字あたり3個以上CSSパターンがあればCSS
+  return indicators >= 3 && indicators / (text.length / 500) > 1.5;
+}
+
 function splitSentences(text: string): string[] {
   const result: string[] = [];
   let current = "";
@@ -93,6 +105,9 @@ export function formatArticleBody(raw: string): string {
   const normalized = raw
     .replace(/\r\n/g, "\n")
     .replace(/\u00a0/g, " ")
+    // Strip inline CSS blocks that leaked into text (CSS-in-JS)
+    .replace(/\.css-[\w-]+\s*\{[^}]*\}/g, "")
+    .replace(/@media\s+screen\s*\([^)]*\)\s*\{[^}]*\}/g, "")
     .replace(/[ \t\f\v]+/g, " ")
     .replace(/\n[ \t]+/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
@@ -101,6 +116,8 @@ export function formatArticleBody(raw: string): string {
   const paragraphs = normalized.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
   const out: string[] = [];
   for (const p of paragraphs) {
+    // CSSが混入した段落を除去
+    if (isCssParagraph(p)) continue;
     out.push(...splitLongParagraph(p));
   }
   return out.join("\n\n");

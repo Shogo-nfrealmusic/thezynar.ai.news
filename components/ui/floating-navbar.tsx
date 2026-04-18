@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -26,30 +26,16 @@ export const FloatingNav = ({
   user?: NavUser | null;
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [visible, setVisible] = useState(true);
-  const lastScrollY = useRef(0);
+  const [scrolled, setScrolled] = useState(false);
 
-  // スクロール時にヘッダーを隠す/表示する
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-
-      if (currentScrollY < 100) {
-        setVisible(true);
-      } else if (currentScrollY > lastScrollY.current) {
-        setVisible(false);
-      } else {
-        setVisible(true);
-      }
-
-      lastScrollY.current = currentScrollY;
+      setScrolled(window.scrollY > 0);
     };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // メニューが開いている時は背面スクロールを無効化
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden";
@@ -63,50 +49,46 @@ export const FloatingNav = ({
 
   return (
     <>
-      {/* フローティングヘッダー */}
-      <div
+      {/* トップバーナビ */}
+      <header
         className={cn(
-          "fixed top-0 left-0 right-0 z-[5000] px-4 pt-4 md:px-8 md:pt-6 transition-transform duration-300",
-          visible ? "translate-y-0" : "-translate-y-full"
+          "fixed top-0 left-0 right-0 z-[5000] h-[var(--header-height)] border-b border-neutral-800 bg-[#0a0a0a] transition-shadow duration-200",
+          scrolled && "shadow-lg shadow-black/50",
+          className
         )}
       >
-        <header
-          className={cn(
-            "mx-auto flex max-w-7xl items-center justify-between rounded-full bg-white/95 px-4 py-3 shadow-lg shadow-neutral-200/50 backdrop-blur supports-[backdrop-filter]:bg-white/90 dark:bg-neutral-900/95 dark:shadow-neutral-950/50 dark:supports-[backdrop-filter]:bg-neutral-900/90 md:px-6 md:py-4",
-            className
-          )}
-        >
-          {/* Logo: 左端 */}
+        <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 md:px-6">
+          {/* Logo */}
           <Link
             href="/"
-            className="flex shrink-0 items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 rounded"
+            className="flex shrink-0 items-center focus:outline-none"
             aria-label="Home"
           >
             <Image
               src="/logo.png"
               alt="thezynar.ai"
-              width={360}
-              height={96}
-              className="h-10 w-auto sm:h-12 invert dark:invert-0"
+              width={240}
+              height={64}
+              className="h-9 w-auto sm:h-10"
               priority
             />
           </Link>
 
-          {/* Desktop: ナビアイテム中央 */}
-          <nav className="hidden md:flex flex-1 items-center justify-center gap-1 lg:gap-2">
+          {/* Desktop nav */}
+          <nav className="hidden md:flex flex-1 items-center justify-center gap-0.5 lg:gap-1">
             {navItems.map((navItem, idx) => (
               <Link
                 key={`link-${idx}`}
                 href={navItem.link}
-                className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white lg:px-4"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-[0.8rem] font-semibold uppercase tracking-wide text-neutral-400 transition-colors hover:text-white lg:px-4 lg:text-sm"
               >
-                <span>{navItem.name}</span>
+                {navItem.name}
               </Link>
             ))}
           </nav>
 
-          {/* Desktop: 右端 */}
-          <div className="hidden md:block">
+          {/* Desktop right */}
+          <div className="hidden md:flex items-center gap-3">
             {user ? (
               <UserMenu
                 displayName={user.displayName}
@@ -116,56 +98,55 @@ export const FloatingNav = ({
             ) : (
               <Link
                 href="/login"
-                className="rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+                className="rounded bg-green-500 px-4 py-1.5 text-sm font-semibold text-black transition-colors hover:bg-green-400"
               >
                 Login
               </Link>
             )}
           </div>
 
-          {/* Mobile: ハンバーガーボタン（アニメーション付き） */}
+          {/* Mobile hamburger */}
           <button
             type="button"
             onClick={() => setMobileOpen((o) => !o)}
-            className="relative flex h-10 w-10 items-center justify-center text-neutral-700 md:hidden dark:text-neutral-200"
+            className="relative flex h-9 w-9 items-center justify-center text-neutral-300 md:hidden"
             aria-expanded={mobileOpen}
             aria-label="メニュー"
           >
             <div className="flex h-5 w-6 flex-col items-center justify-center">
               <span
                 className={cn(
-                  "absolute h-0.5 w-6 bg-current transition-all duration-300 ease-in-out",
+                  "absolute h-0.5 w-6 bg-current transition-all duration-300",
                   mobileOpen ? "rotate-45" : "-translate-y-2"
                 )}
               />
               <span
                 className={cn(
-                  "absolute h-0.5 w-6 bg-current transition-all duration-300 ease-in-out",
+                  "absolute h-0.5 w-6 bg-current transition-all duration-300",
                   mobileOpen ? "opacity-0 scale-0" : "opacity-100 scale-100"
                 )}
               />
               <span
                 className={cn(
-                  "absolute h-0.5 w-6 bg-current transition-all duration-300 ease-in-out",
+                  "absolute h-0.5 w-6 bg-current transition-all duration-300",
                   mobileOpen ? "-rotate-45" : "translate-y-2"
                 )}
               />
             </div>
           </button>
-        </header>
-      </div>
+        </div>
+      </header>
 
-      {/* Mobile: フルスクリーンメニュー（スライドアニメーション） */}
+      {/* Mobile full-screen menu */}
       <div
         className={cn(
-          "fixed inset-0 z-[9999] flex flex-col md:hidden transition-transform duration-500 ease-out",
+          "fixed inset-0 z-[9999] flex flex-col md:hidden bg-[#0a0a0a] transition-transform duration-400 ease-out",
           mobileOpen ? "translate-x-0" : "translate-x-full"
         )}
-        style={{ backgroundColor: "#0a0a0a" }}
         aria-hidden={!mobileOpen}
       >
-        {/* メニュー内ヘッダー */}
-        <div className="flex items-center justify-between px-4 pt-4">
+        {/* Menu header */}
+        <div className="flex h-[var(--header-height)] items-center justify-between border-b border-neutral-800 px-4">
           <Link
             href="/"
             onClick={() => setMobileOpen(false)}
@@ -176,70 +157,51 @@ export const FloatingNav = ({
             <Image
               src="/logo.png"
               alt="thezynar.ai"
-              width={360}
-              height={96}
-              className="h-10 w-auto"
+              width={240}
+              height={64}
+              className="h-9 w-auto"
             />
           </Link>
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
-            className="flex h-10 w-10 items-center justify-center text-white"
+            className="flex h-9 w-9 items-center justify-center text-neutral-300"
             aria-label="閉じる"
             tabIndex={mobileOpen ? 0 : -1}
           >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.5}
-              viewBox="0 0 24 24"
-              aria-hidden
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* メニューアイテム */}
-        <nav className="flex flex-1 flex-col justify-center px-8">
+        {/* Menu items */}
+        <nav className="flex flex-1 flex-col px-6 py-4">
           {navItems.map((navItem, idx) => (
             <Link
               key={`link-${idx}`}
               href={navItem.link}
               onClick={() => setMobileOpen(false)}
               className={cn(
-                "flex items-center gap-4 border-b border-neutral-800 py-5 text-2xl font-medium text-white transition-all hover:text-neutral-400",
-                mobileOpen
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-8"
+                "flex items-center gap-3 border-b border-neutral-800/60 py-4 text-lg font-semibold uppercase tracking-wide text-white transition-colors hover:text-green-400",
+                mobileOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
               )}
-              style={{
-                transitionDelay: mobileOpen ? `${150 + idx * 50}ms` : "0ms",
-              }}
+              style={{ transitionDelay: mobileOpen ? `${100 + idx * 40}ms` : "0ms" }}
               tabIndex={mobileOpen ? 0 : -1}
             >
               {navItem.icon}
-              <span>{navItem.name}</span>
+              {navItem.name}
             </Link>
           ))}
         </nav>
 
-        {/* 下部ボタン */}
-        <div className="px-8 pb-12">
+        {/* Bottom button */}
+        <div className="px-6 pb-10">
           {user ? (
             <Link
               href="/dashboard"
               onClick={() => setMobileOpen(false)}
-              className={cn(
-                "block w-full rounded-full bg-white py-4 text-center text-lg font-medium text-neutral-900 transition-all duration-300",
-                mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              )}
-              style={{ transitionDelay: mobileOpen ? "400ms" : "0ms" }}
+              className="block w-full rounded bg-green-500 py-3.5 text-center text-base font-bold text-black"
               tabIndex={mobileOpen ? 0 : -1}
             >
               Dashboard
@@ -248,11 +210,7 @@ export const FloatingNav = ({
             <Link
               href="/login"
               onClick={() => setMobileOpen(false)}
-              className={cn(
-                "block w-full rounded-full bg-white py-4 text-center text-lg font-medium text-neutral-900 transition-all duration-300",
-                mobileOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              )}
-              style={{ transitionDelay: mobileOpen ? "400ms" : "0ms" }}
+              className="block w-full rounded bg-green-500 py-3.5 text-center text-base font-bold text-black"
               tabIndex={mobileOpen ? 0 : -1}
             >
               Login

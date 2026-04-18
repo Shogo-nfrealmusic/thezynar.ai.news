@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
+import Image from "next/image";
 
 interface UserMenuProps {
   displayName: string;
@@ -36,10 +37,12 @@ export function UserMenu({ displayName, avatarUrl, email }: UserMenuProps) {
         className="flex h-9 w-9 items-center justify-center rounded-full bg-neutral-700 text-sm font-medium text-white transition-colors hover:bg-neutral-600 overflow-hidden"
       >
         {avatarUrl ? (
-          <img
+          <Image
             src={avatarUrl}
             alt={displayName || "User"}
-            className="h-full w-full object-cover"
+            width={36}
+            height={36}
+            className="object-cover"
           />
         ) : (
           initials

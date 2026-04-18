@@ -131,8 +131,9 @@ function parseRSS(xml: string): RSSItem[] {
     const summary = fullText.substring(0, 420);
     const body = fullText.substring(0, 16_000);
 
-    // サムネイル: media:content → enclosure → content内のimg 順で探す
+    // サムネイル: media:thumbnail → media:content → enclosure → content内のimg 順で探す
     const thumbnail =
+      extractAttr(block, "media:thumbnail", "url") ||
       extractAttr(block, "media:content", "url") ||
       extractAttr(block, "enclosure", "url") ||
       (() => {
@@ -389,15 +390,27 @@ export async function GET(request: Request) {
     });
 
     // リンクがある記事は本文が短い順にスクレイピング（長いRSS本文は上書きしない）
+    // サムネイルが無い記事も優先的にスクレイピング（og:image取得のため）
     const needsScrape = deduped
       .map((item, i) => ({ item, i }))
       .filter(({ item }) => Boolean(item.link))
-      .sort((a, b) => a.item.body.length - b.item.body.length)
+      .sort((a, b) => {
+        // サムネイル無しを優先、次に本文が短い順
+        const aPriority = a.item.thumbnail ? 0 : -10000;
+        const bPriority = b.item.thumbnail ? 0 : -10000;
+        return (aPriority + a.item.body.length) - (bPriority + b.item.body.length);
+      })
       .slice(0, MAX_BODY_SCRAPE);
     const scraped = await scrapeAll(needsScrape.map(({ item }) => item.link));
     needsScrape.forEach(({ i }, j) => {
-      if (scraped[j] && scraped[j].length > deduped[i].body.length) {
-        deduped[i] = { ...deduped[i], body: scraped[j] };
+      const result = scraped[j];
+      // 本文: スクレイプ結果が長ければ上書き
+      if (result.body && result.body.length > deduped[i].body.length) {
+        deduped[i] = { ...deduped[i], body: result.body };
+      }
+      // サムネイル: RSSに無ければスクレイプのog:imageで補完
+      if (!deduped[i].thumbnail && result.thumbnail) {
+        deduped[i] = { ...deduped[i], thumbnail: result.thumbnail };
       }
     });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 interface ArticleShareBarProps {
   title: string;
@@ -11,12 +11,9 @@ interface ArticleShareBarProps {
 
 export function ArticleShareBar({ title, shareUrl: initialUrl, className }: ArticleShareBarProps) {
   const [copied, setCopied] = useState(false);
-  const [clientUrl, setClientUrl] = useState(initialUrl ?? "");
-
-  useEffect(() => {
-    if (initialUrl) return;
-    setClientUrl(window.location.href);
-  }, [initialUrl]);
+  const [clientUrl] = useState(() =>
+    typeof window !== "undefined" ? window.location.href : ""
+  );
 
   const shareUrl = initialUrl || clientUrl;
 

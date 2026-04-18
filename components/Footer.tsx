@@ -41,32 +41,29 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-neutral-950 border-t border-neutral-800">
-      {/* グラデーションライン */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-neutral-500/50 to-transparent" />
-
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-        {/* 上部セクション */}
+    <footer className="relative bg-[#0a0a0a] border-t border-neutral-800">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+        {/* Top section */}
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
-          {/* ロゴ & 説明 */}
+          {/* Logo & description */}
           <div className="col-span-2 lg:col-span-2">
             <Link href="/" className="inline-block">
               <Image
                 src="/logo.png"
                 alt="thezynar.ai"
-                width={360}
-                height={96}
-                className="h-10 w-auto sm:h-12"
+                width={240}
+                height={64}
+                className="h-9 w-auto"
               />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-neutral-400">
               A next-generation tech media delivering the latest in technology, AI, and gadget news. Stay ahead of the future with daily updates.
             </p>
 
-            {/* ニュースレター */}
+            {/* Newsletter */}
             <div className="mt-6">
-              <h4 className="text-sm font-semibold text-white">Newsletter</h4>
-              <p className="mt-2 text-xs text-neutral-500">
+              <h4 className="text-sm font-bold uppercase tracking-wide text-white">Newsletter</h4>
+              <p className="mt-1.5 text-xs text-neutral-500">
                 Get the latest news delivered to your inbox
               </p>
               <form className="mt-3 flex gap-2">
@@ -75,12 +72,12 @@ export function Footer() {
                   <input
                     type="email"
                     placeholder="your@email.com"
-                    className="w-full rounded-lg border border-neutral-800 bg-neutral-900 py-2.5 pl-10 pr-3 text-sm text-white placeholder-neutral-500 transition-colors focus:border-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-600"
+                    className="w-full rounded-sm border border-neutral-800 bg-neutral-900 py-2.5 pl-10 pr-3 text-sm text-white placeholder-neutral-600 transition-colors focus:border-green-500 focus:outline-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="shrink-0 rounded-lg bg-white px-4 py-2.5 text-sm font-medium text-neutral-900 transition-colors hover:bg-neutral-200"
+                  className="shrink-0 rounded-sm bg-green-500 px-4 py-2.5 text-sm font-bold text-black transition-colors hover:bg-green-400"
                 >
                   Subscribe
                 </button>
@@ -90,15 +87,15 @@ export function Footer() {
 
           {/* Categories */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
+            <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-neutral-400">
               Categories
             </h3>
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-4 space-y-2.5">
               {footerLinks.categories.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-sm text-neutral-400 transition-colors hover:text-white"
+                    className="text-sm text-neutral-400 transition-colors hover:text-green-400"
                   >
                     {link.name}
                   </Link>
@@ -109,15 +106,15 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
+            <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-neutral-400">
               Company
             </h3>
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-4 space-y-2.5">
               {footerLinks.company.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-sm text-neutral-400 transition-colors hover:text-white"
+                    className="text-sm text-neutral-400 transition-colors hover:text-green-400"
                   >
                     {link.name}
                   </Link>
@@ -128,15 +125,15 @@ export function Footer() {
 
           {/* Legal */}
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
+            <h3 className="text-[0.7rem] font-bold uppercase tracking-widest text-neutral-400">
               Legal
             </h3>
-            <ul className="mt-4 space-y-3">
+            <ul className="mt-4 space-y-2.5">
               {footerLinks.legal.map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-sm text-neutral-400 transition-colors hover:text-white"
+                    className="text-sm text-neutral-400 transition-colors hover:text-green-400"
                   >
                     {link.name}
                   </Link>
@@ -146,16 +143,13 @@ export function Footer() {
           </div>
         </div>
 
-        {/* 区切り線 */}
-        <div className="mt-12 border-t border-neutral-800 pt-8">
+        {/* Bottom bar */}
+        <div className="mt-10 border-t border-neutral-800 pt-6">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            {/* Copyright */}
-            <p className="text-sm text-neutral-500">
+            <p className="text-xs text-neutral-600">
               © {currentYear} thezynar.ai. All rights reserved.
             </p>
-
-            {/* Social Links */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {socialLinks.map((social) => {
                 const Icon = social.icon;
                 return (
@@ -164,10 +158,10 @@ export function Footer() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 text-neutral-400 transition-all hover:bg-neutral-800 hover:text-white"
+                    className="flex h-9 w-9 items-center justify-center rounded-sm border border-neutral-800 bg-neutral-900 text-neutral-500 transition-all hover:border-green-500/50 hover:text-green-400"
                     aria-label={social.name}
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-4 w-4" />
                   </a>
                 );
               })}
